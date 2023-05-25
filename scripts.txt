@@ -1,0 +1,20 @@
+# MHER
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode nstep --log_path=logs/${TASK}/mher_n${NSTEP}/${SEED} --save_path=models/${TASK}/mher_n${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20 --scale_degree 0 --Q_lr 0.001 --hidden 256
+
+# MHER lambda
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode lambda --lamb 0.7 --log_path=logs/${TASK}/mher_lambda_n${NSTEP}/${SEED} --save_path=models/${TASK}/mher_lambda_n${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20  --scale_degree 0 --Q_lr 0.001 --hidden 256
+
+# MMHER
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode dynamic --alpha 0.5 --log_path=logs/${TASK}/br_mmher_${NSTEP}/${SEED} --save_path=models/${TASK}/br_mmher_${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20 --scale_degree 1 --Q_lr 0.001 --hidden 256
+
+# TMHER
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode nstep --log_path=logs/${TASK}/tmher_n${NSTEP}/${SEED} --save_path=models/${TASK}/tmher_n${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20 --scale_degree 0 --Q_lr 0.001 --hidden 256 --truncate True
+
+# BR-MHER
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode nstep --log_path=logs/${TASK}/br_mher_n${NSTEP}/${SEED} --save_path=models/${TASK}/br_mher_n${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20 --scale_degree 1 --Q_lr 0.001 --hidden 256 --truncate True
+
+# BR-MHER lambda
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode lambda --lamb 0.7 --log_path=logs/${TASK}/br_mher_lambda_n${NSTEP}/${SEED} --save_path=models/${TASK}/br_mher_lambda_n${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20  --scale_degree 1 --Q_lr 0.001 --hidden 256 --truncate True
+
+# BR-MMHER
+python -m  baselines.run  --env=${TASK} --num_epoch 50 --num_env 6  --n_step ${NSTEP} --mode dynamic --alpha 0.5 --log_path=logs/${TASK}/br_mmher_${NSTEP}/${SEED} --save_path=models/${TASK}/br_mmher_${NSTEP}/${SEED} --seed ${SEED} --n_test_rollouts 20 --scale_degree 1 --Q_lr 0.001 --hidden 256 --truncate True
