@@ -26,7 +26,7 @@ class DDPG(object):
                  Q_lr, pi_lr, norm_eps, norm_clip, max_u, action_l2, clip_obs, scope, T,
                  rollout_batch_size, subtract_goals, relative_goals, clip_pos_returns, clip_return,
                  gamma, samplers, mode, n_step, cor_rate, dynamic_batchsize, dynamic_init, alpha, lamb,
-                 reuse=False, grad_clip_value=-1, et=False, scale_degree=1.0, **kwargs):
+                 reuse=False, grad_clip_value=-1, et=False, scale_degree=1.0, truncate=False, **kwargs):
         """Implementation of DDPG that is used in combination with Hindsight Experience Replay (HER).
 
         Args:
@@ -100,7 +100,7 @@ class DDPG(object):
         buffer_shapes['ag'] = (self.T, self.dimg)
         buffer_size = (self.buffer_size // self.rollout_batch_size) * self.rollout_batch_size # buffer_size % rollout_batch_size should be zero
 
-        self.basic_info = {"et": et}
+        self.basic_info = {"et": et, "truncate": truncate}
         self.her_info = {'get_Q_pi': self.get_Q_pi, 'gamma': self.gamma, 'get_Q': self.get_Q}
         self.her_info.update(self.basic_info)
 
@@ -114,7 +114,7 @@ class DDPG(object):
                 'dynamic_model':self.dynamic_model,
                 'get_action_and_Q_pi': self.get_action_and_Q_pi,
                 'alpha':self.alpha,
-                'use_dynamic_nstep':True
+                'use_dynamic_nstep':True,
             }
         elif self.mode == 'lambda':
             sampler = self.samplers[self.mode]
@@ -125,15 +125,6 @@ class DDPG(object):
                 'get_Q':self.get_Q,
                 'lamb':self.lamb,
                 'use_lambda_target':True
-            }
-        elif self.mode == 'mix':
-            sampler = self.samplers[self.mode]
-            self.info = {
-                'nstep':self.n_step,
-                'gamma':self.gamma,
-                'get_Q_pi':self.get_Q_pi,
-                'get_Q':self.get_Q,
-                'alpha':self.alpha,
             }
         elif self.mode == "correct":
             sampler = self.samplers[self.mode]
@@ -165,16 +156,6 @@ class DDPG(object):
         self.grad_stats = defaultdict(list)
         self.debug_stats = defaultdict(list)
     
-    def get_bias(self):
-        pass
-        # stats_length = [len(v) for v in self.bias_stats.values()]
-        # assert stats_length[0] == np.mean(stats_length), "the bias information is incorrect"
-        # logs = [("stats_bias/"+k, np.mean(v)) for k,v in self.bias_stats.items()]
-        # logs += [("stats_bias/abs/"+k, np.mean(np.abs(v))) for k,v in self.bias_stats.items()]
-        # self.bias_stats = defaultdict(list)
-
-        # return logs
-
     def _random_action(self, n):
         if self.action_type == "continuous":
             return np.random.uniform(low=-self.max_u, high=self.max_u, size=(n, self.dimu))
@@ -369,9 +350,8 @@ class DDPG(object):
 
     def _grads(self):
         # Avoid feed_dict here for performance!
-        success_scale, success_1_proportion, success_n_proportion, critic_loss, actor_loss, Q_grad, pi_grad, Q_grad_norm, pi_grad_norm = self.sess.run([
+        success_1_proportion, success_n_proportion, critic_loss, actor_loss, Q_grad, pi_grad, Q_grad_norm, pi_grad_norm = self.sess.run([
             # self.one_step_bias_tf,
-            self.mean_success_scale,
             self.success_1_proportion,
             self.success_n_proportion,
             self.Q_loss_tf,
@@ -387,7 +367,6 @@ class DDPG(object):
         self.grad_stats["pi_grad_norm"].append(pi_grad_norm)
         self.debug_stats["success_1_proportion"].append(success_1_proportion)
         self.debug_stats["success_n_proportion"].append(success_n_proportion)
-        self.debug_stats["success_scale"].append(success_scale)
 
         return critic_loss, actor_loss, Q_grad, pi_grad
 
@@ -510,16 +489,12 @@ class DDPG(object):
         target_tf = tf.clip_by_value(batch_tf['r'] , *clip_range)  # lambda target 
         self.target_tf = target_tf
 
-        # self.Q_loss_tf = tf.reduce_mean(tf.square(tf.stop_gradient(target_tf) - q_to_goal) * \
-            # (batch_tf['success_within_one_step'] * (batch_tf['success_scale'] - 1) + 1))
         
         self.Q_loss_tf = tf.reduce_mean(tf.square(tf.stop_gradient(target_tf) - q_to_goal) * tf.pow(self.sqrt_n_step/batch_tf['truncated_n_steps'], self.scale_degree))
         
         self.success_1_proportion = tf.reduce_mean(batch_tf['success_within_one_step'])
         self.success_n_proportion = tf.reduce_mean(batch_tf['success_within_n_steps'])
             
-        # self.one_step_bias_tf = tf.reduce_mean(tf.stop_gradient(q_to_goal-batch_tf['one_step_r']))
-
         self.pi_loss_tf = -tf.reduce_mean(q_pi_to_goal)
         self.pi_loss_tf += self.action_l2 * tf.reduce_mean(tf.square(pi_to_goal/ self.max_u))
 

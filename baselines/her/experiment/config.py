@@ -78,8 +78,7 @@ DEFAULT_PARAMS = {
     "grad_clip_value": -1,
     "et": False,
     'scale_degree': 1.0,
-    "scale_with_T_degree": 0,
-    "scale_with_T_coeff": 1,
+    'truncate': False,
 
     # if do not use her
     'no_her':False    # no her, will be used for DDPG and n-step
@@ -177,7 +176,7 @@ def prepare_params(kwargs):
     for name in ['buffer_size', 'hidden', 'layers','network_class','polyak','batch_size', 
                  'Q_lr', 'pi_lr', 'norm_eps', 'norm_clip', 'max_u','action_l2', 'clip_obs', 
                  'scope', 'relative_goals', 'n_step', 'lamb', 'alpha', 'dynamic_init', 'dynamic_batchsize',
-                 'cor_rate', 'grad_clip_value', 'et', 'scale_degree']:
+                 'cor_rate', 'grad_clip_value', 'et', 'scale_degree', 'truncate']:
         ddpg_params[name] = kwargs[name]
         kwargs['_' + name] = kwargs[name]
         del kwargs[name]
