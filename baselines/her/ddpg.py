@@ -82,7 +82,6 @@ class DDPG(object):
         self.stage_shapes = stage_shapes
         self.sqrt_n_step = np.sqrt(self.n_step)
         # self.success_scale = self.scale_with_T_coeff * np.power(self.T, self.scale_with_T_degree)
-        print("###### The success scale with T is {}".format(self.success_scale))
 
         # Create network.
         with tf.variable_scope(self.scope):
