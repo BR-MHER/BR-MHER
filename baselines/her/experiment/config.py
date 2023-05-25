@@ -77,7 +77,7 @@ DEFAULT_PARAMS = {
     'gamma': -1, # if it's negative, we dereive a suitable gamma from T
     "grad_clip_value": -1,
     "et": False,
-    'scale_degree': 1.0,
+    'scale_degree': 0,
     'truncate': False,
 
     # if do not use her
