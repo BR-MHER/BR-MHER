@@ -1,0 +1,8 @@
+FetchSlide-v1
+FetchPickAndPlace-v1
+HandReach-v0
+HandManipulateBlockRotateXYZ-v0
+SawyerReachXYZEnv-v1
+SawyerPushAndReachEnvEasy-v0
+Simple-MiniGrid-Empty-25x25-v0
+Simple-MiniGrid-Empty-50x50-v0
