@@ -1,4 +1,4 @@
-# Bias Resilient Multi-Step Off-Policy Goal-Conditioned Reinforcement Learning
+# Bias Resilient Multi-Step Off-Policy <br> Goal-Conditioned Reinforcement Learning
 
 This repository is the official implementation of BR-MHER. 
 
